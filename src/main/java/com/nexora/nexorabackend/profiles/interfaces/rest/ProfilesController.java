@@ -54,7 +54,6 @@ public class ProfilesController {
      * @return ResponseEntity with the created profile resource or BAD_REQUEST if creation fails
      */
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PROVIDER')")
     public ResponseEntity<ProfileResource> createProfile(@RequestBody CreateProfileResource resource) {
         // 1. Get the userId of the authenticated user
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -77,7 +76,6 @@ public class ProfilesController {
      * @return ResponseEntity with the profile resource or NOT_FOUND if not found
      */
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PROVIDER') or hasRole('ROLE_RESIDENT')")
     public ResponseEntity<ProfileResource> getMyProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -96,7 +94,6 @@ public class ProfilesController {
      * @return ResponseEntity with the updated profile resource or NOT_FOUND if not found
      */
     @PutMapping("")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PROVIDER') or hasRole('ROLE_RESIDENT')")
     public ResponseEntity<ProfileResource> updateProfile(@RequestBody UpdateProfileResource resource) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
