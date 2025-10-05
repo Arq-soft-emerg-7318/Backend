@@ -1,7 +1,6 @@
 package com.nexora.nexorabackend.subscription.domain.commands;
 
 import java.sql.Date;
-import java.sql.Time;
 import java.util.Objects;
 
 
