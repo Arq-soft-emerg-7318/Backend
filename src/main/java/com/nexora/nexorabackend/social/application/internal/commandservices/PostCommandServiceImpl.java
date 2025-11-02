@@ -30,7 +30,7 @@ public class PostCommandServiceImpl implements PostCommandService {
         command.reactions(),
         command.categoryId(),
         command.fileId(),
-        command.communityId();
+        command.communityId());
         Post post = new Post(commad);
         return Optional.of(postRepository.save(post));
 
