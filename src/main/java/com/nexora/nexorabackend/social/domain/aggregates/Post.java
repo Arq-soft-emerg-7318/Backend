@@ -19,9 +19,9 @@ public class Post extends AuditableAbstractAggregateRoot<Post> {
     private Integer authorId;
 
     @Column(nullable = false)
-        private String body;
+    private String body;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer reactions;
 
     @Column(nullable = false)
@@ -30,7 +30,7 @@ public class Post extends AuditableAbstractAggregateRoot<Post> {
     @Column(nullable = false)
     private Integer fileId;
     
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer communityId;
     public Post() {}
 
@@ -54,5 +54,6 @@ public class Post extends AuditableAbstractAggregateRoot<Post> {
         this.fileId = command.fileId();
         this.communityId = command.communityId();
     }
+    
 }
 

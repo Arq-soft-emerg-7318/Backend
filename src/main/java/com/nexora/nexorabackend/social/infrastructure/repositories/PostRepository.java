@@ -1,5 +1,6 @@
 package com.nexora.nexorabackend.social.infrastructure.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,5 +11,6 @@ import com.nexora.nexorabackend.social.domain.aggregates.Post;
 @Repository
 public interface PostRepository  extends JpaRepository<Post, Long> {
     Optional<Post> findById(Integer id);
+    List<Post> findAllByCommunityId(Long communityId);
     
 }
