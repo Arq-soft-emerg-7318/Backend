@@ -3,7 +3,7 @@ package com.nexora.nexorabackend.social.domain.commands;
 import java.util.Objects;
 
 
-public record CreatePostCommand(String title, Integer authorId, String body, Integer reactions, Integer categoryId,
+public record CreatePostCommand(String title, Long authorId, String body, Integer reactions, Integer categoryId,
         Integer fileId, Integer communityId) {
 
             public CreatePostCommand {
