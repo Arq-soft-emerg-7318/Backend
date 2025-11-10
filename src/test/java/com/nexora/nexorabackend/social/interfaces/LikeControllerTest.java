@@ -41,7 +41,7 @@ public class LikeControllerTest {
     @BeforeEach
     void setup() {
         // standalone setup avoids loading Spring context (no JPA/auditing auto-config)
-        this.mockMvc = MockMvcBuilders.standaloneSetup(new LikeController(likeCommand)).build();
+        this.mockMvc = MockMvcBuilders.standaloneSetup(new LikeController(likeCommand, null)).build();
         SecurityContextHolder.clearContext();
     }
 
@@ -59,7 +59,7 @@ public class LikeControllerTest {
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         // mock service
-        Like saved = new Like(new CreateLikeCommand(1, 2));
+        Like saved = new Like(new CreateLikeCommand(1L, 2L));
         when(likeCommand.handle(any(CreateLikeCommand.class))).thenReturn(Optional.of(saved));
 
         String payload = objectMapper.writeValueAsString(java.util.Map.of("postId", 2));

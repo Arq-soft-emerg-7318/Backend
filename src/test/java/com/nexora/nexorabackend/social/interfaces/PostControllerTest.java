@@ -38,7 +38,7 @@ public class PostControllerTest {
 
     @BeforeEach
     void setup() {
-        this.mockMvc = MockMvcBuilders.standaloneSetup(new PostController(postCommandService)).build();
+        this.mockMvc = MockMvcBuilders.standaloneSetup(new PostController(postCommandService, null)).build();
         SecurityContextHolder.clearContext();
     }
 
@@ -49,7 +49,7 @@ public class PostControllerTest {
         var auth = new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        Post saved = new Post("Hello", 10, "Body", 0, 1, 1, 2);
+        Post saved = new Post();
         when(postCommandService.handle(any())).thenReturn(Optional.of(saved));
 
     String payload = objectMapper.writeValueAsString(java.util.Map.of(
