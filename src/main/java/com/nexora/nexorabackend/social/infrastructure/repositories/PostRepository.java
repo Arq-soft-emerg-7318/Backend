@@ -10,7 +10,8 @@ import com.nexora.nexorabackend.social.domain.aggregates.Post;
 
 @Repository
 public interface PostRepository  extends JpaRepository<Post, Long> {
-    Optional<Post> findById(Integer id);
+    Optional<Post> findById(Long id);
     List<Post> findAllByCommunityId(Long communityId);
-    
+
+    List<Post> findAllByAuthorId(Long authorId);
 }

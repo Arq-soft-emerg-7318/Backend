@@ -16,7 +16,7 @@ public class Post extends AuditableAbstractAggregateRoot<Post> {
     private String title;
 
     @Column(nullable = false)
-    private Integer authorId;
+    private Long authorId;
 
     @Column(nullable = false)
     private String body;
@@ -34,7 +34,7 @@ public class Post extends AuditableAbstractAggregateRoot<Post> {
     private Integer communityId;
     public Post() {}
 
-    public Post(String title, Integer authorId, String body, Integer reactions, Integer categoryId, Integer fileId,
+    public Post(String title, Long authorId, String body, Integer reactions, Integer categoryId, Integer fileId,
             Integer communityId) {
         this.title = title;
         this.authorId = authorId;

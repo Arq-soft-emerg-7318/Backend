@@ -10,4 +10,6 @@ import com.nexora.nexorabackend.social.domain.aggregates.Like;
 @Repository
 public interface LikeRepository  extends JpaRepository<Like, Long> {
     Optional<Like> findById(Integer id);
+
+    long countLikesByPostId(Long postId);
 }

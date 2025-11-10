@@ -11,14 +11,11 @@ import com.nexora.nexorabackend.social.infrastructure.repositories.LikeRepositor
 
 @Service
 public class LikeCommandServiceImpl implements LikeCommandService {
-
     private final LikeRepository likeRepository;
-    
 
     public LikeCommandServiceImpl(LikeRepository likeRepository) {
             this.likeRepository = likeRepository;
     }
-
 
     @Override
     public Optional<Like> handle(CreateLikeCommand command) {
