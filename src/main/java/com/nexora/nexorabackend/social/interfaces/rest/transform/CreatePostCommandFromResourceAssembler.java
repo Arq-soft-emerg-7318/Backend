@@ -5,10 +5,10 @@ import com.nexora.nexorabackend.social.interfaces.rest.resources.CreatePostResou
 
 public class CreatePostCommandFromResourceAssembler {
 
-    public static CreatePostCommand toCommandFromResource (CreatePostResource resource){
+    public static CreatePostCommand toCommandFromResource (CreatePostResource resource, Long authorId){
         return new CreatePostCommand(
             resource.title(),
-            resource.authorId(),
+            authorId,
             resource.body(),
             resource.reactions(),
             resource.categoryId(),

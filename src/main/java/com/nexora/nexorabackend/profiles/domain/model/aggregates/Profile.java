@@ -1,6 +1,5 @@
 package com.nexora.nexorabackend.profiles.domain.model.aggregates;
 
-import com.nexora.nexorabackend.iam.domain.model.aggregates.User;
 import com.nexora.nexorabackend.profiles.domain.model.commands.CreateProfileCommand;
 import com.nexora.nexorabackend.profiles.domain.model.commands.UpdateProfileCommand;
 import com.nexora.nexorabackend.profiles.domain.model.valueobjects.PersonName;

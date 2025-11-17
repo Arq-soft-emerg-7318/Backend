@@ -22,16 +22,15 @@ public class PostCommandServiceImpl implements PostCommandService {
 
     @Override
     public Optional<Post> handle(CreatePostCommand command) {
-        
-       CreatePostCommand commad = new CreatePostCommand(
-        command.title(),
-        command.authorId(),
-        command.body(),
-        command.reactions(),
-        command.categoryId(),
-        command.fileId(),
-        command.communityId());
-        Post post = new Post(commad);
+        Post post = new Post(
+            command.title(),
+            command.authorId(),
+            command.body(),
+            command.reactions(),
+            command.categoryId(),
+            command.fileId(),
+            command.communityId()
+        );
         return Optional.of(postRepository.save(post));
 
     }   

@@ -23,16 +23,16 @@ public class ProfilesContextFacade {
             String documentType,
             String phone
     ) {
-        var command = new CreateProfileCommand(
-                firstName,
-                lastName,
-                email,
-                direction,
-                documentNumber,
-                documentType,
-                phone,
-                userId  
-        );
+    var command = new CreateProfileCommand(
+        firstName,
+        lastName,
+        email,
+        direction,
+        documentNumber,
+        documentType,
+        phone,
+        userId  
+    );
         profileCommandService.handle(userId, command);
     }
 }

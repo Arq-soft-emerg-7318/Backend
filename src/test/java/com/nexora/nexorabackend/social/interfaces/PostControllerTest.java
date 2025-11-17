@@ -2,7 +2,7 @@ package com.nexora.nexorabackend.social.interfaces;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,11 +34,17 @@ public class PostControllerTest {
     @Mock
     private PostCommandService postCommandService;
 
+    @Mock
+    private com.nexora.nexorabackend.shared.Infrastructure.services.StorageService storageService;
+
+    @Mock
+    private com.nexora.nexorabackend.social.domain.services.PostQueryService postQueryService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setup() {
-        this.mockMvc = MockMvcBuilders.standaloneSetup(new PostController(postCommandService, null)).build();
+    this.mockMvc = MockMvcBuilders.standaloneSetup(new PostController(postCommandService, postQueryService, storageService)).build();
         SecurityContextHolder.clearContext();
     }
 
@@ -51,6 +57,7 @@ public class PostControllerTest {
 
         Post saved = new Post();
         when(postCommandService.handle(any())).thenReturn(Optional.of(saved));
+        when(storageService.store(any())).thenReturn(1);
 
     String payload = objectMapper.writeValueAsString(java.util.Map.of(
         "title", "Hello",
@@ -62,10 +69,10 @@ public class PostControllerTest {
         "communityId", 2
     ));
 
-        mockMvc.perform(post("/api/v1/posts")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(payload)
-                .accept(MediaType.APPLICATION_JSON))
+    org.springframework.mock.web.MockMultipartFile postPart = new org.springframework.mock.web.MockMultipartFile("post", "post", "application/json", payload.getBytes());
+    org.springframework.mock.web.MockMultipartFile filePart = new org.springframework.mock.web.MockMultipartFile("file", "test.txt", "text/plain", "hello".getBytes());
+
+    mockMvc.perform(multipart("/api/v1/posts").file(postPart).file(filePart).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("Hello"))
                 .andExpect(jsonPath("$.authorId").value(10));

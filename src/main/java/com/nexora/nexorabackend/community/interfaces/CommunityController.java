@@ -13,6 +13,8 @@ import com.nexora.nexorabackend.iam.domain.model.entities.Role;
 import com.nexora.nexorabackend.iam.domain.model.valueobjects.Roles;
 import com.nexora.nexorabackend.iam.infrastructure.persistence.jpa.repositories.RoleRepository;
 import com.nexora.nexorabackend.iam.infrastructure.persistence.jpa.repositories.UserRepository;
+import com.nexora.nexorabackend.community.infrastructure.persistence.jpa.repositories.CommunityMemberRepository;
+import com.nexora.nexorabackend.community.infrastructure.repositories.CommunityRepository;
 import com.nexora.nexorabackend.iam.infrastructure.authorization.sfs.model.UserDetailsImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,15 +34,23 @@ public class CommunityController {
     private final CommunityQueryService communityQueryService;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final CommunityMemberRepository communityMemberRepository;
+    private final CommunityRepository communityRepository;
+    
 
     public CommunityController(CommunityCommandService communityCommandService,
                                CommunityQueryService communityQueryService,
                                UserRepository userRepository,
-                               RoleRepository roleRepository) {
+                               RoleRepository roleRepository,
+                               CommunityMemberRepository communityMemberRepository,
+                               CommunityRepository communityRepository) {
         this.communityCommandService = communityCommandService;
         this.communityQueryService = communityQueryService;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
+        this.communityMemberRepository = communityMemberRepository;
+        this.communityRepository = communityRepository;
+        
     }
 
     @PostMapping
@@ -64,12 +74,16 @@ public class CommunityController {
         var community = communityCommandService.handle(command)
                 .orElseThrow(() -> new IllegalStateException("The community could not be created"));
 
-        Role communityAdminRole = roleRepository.findByName(Roles.COMMUNITY_ADMIN)
-                .orElseGet(() -> roleRepository.save(new Role(Roles.COMMUNITY_ADMIN)));
+    Role communityAdminRole = roleRepository.findByName(Roles.COMMUNITY_ADMIN)
+        .orElseGet(() -> roleRepository.save(new Role(Roles.COMMUNITY_ADMIN)));
 
-        user.getRoles().removeIf(role -> Roles.USER.equals(role.getName()));
+    // Preserve existing USER role: only add COMMUNITY_ADMIN if not already present
+    boolean alreadyAdmin = user.getRoles().stream()
+        .anyMatch(role -> Roles.COMMUNITY_ADMIN.equals(role.getName()));
+    if (!alreadyAdmin) {
         user.addRole(communityAdminRole);
         userRepository.save(user);
+    }
 
         var communityResource = CommunityResourceFromEntityAssembler.toResourceFromEntity(community);
         return ResponseEntity.status(HttpStatus.CREATED).body(communityResource);
@@ -79,6 +93,15 @@ public class CommunityController {
     public ResponseEntity<List<Community>> listAllCommunities() {
         var communities = communityQueryService.handle(new GetAllCommunitiesQuery());
         return ResponseEntity.ok(communities);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<CommunityResource>> listAllCommunitiesResources() {
+        var communities = communityQueryService.handle(new GetAllCommunitiesQuery());
+        var resources = communities.stream()
+                .map(CommunityResourceFromEntityAssembler::toResourceFromEntity)
+                .toList();
+        return ResponseEntity.ok(resources);
     }
 
     @GetMapping("/{communityId}")
@@ -109,26 +132,50 @@ public class CommunityController {
             return ResponseEntity.notFound().build();
         }
 
-        boolean hasUserRole = user.getRoles().stream()
-                .anyMatch(role -> Roles.USER.equals(role.getName()));
+    // allow users who are USER, COMMUNITY_MEMBER, COMMUNITY_ADMIN or SUPER_ADMIN to join
+    boolean allowedToJoin = user.getRoles().stream()
+        .anyMatch(role -> Roles.USER.equals(role.getName())
+            || Roles.COMMUNITY_MEMBER.equals(role.getName())
+            || Roles.COMMUNITY_ADMIN.equals(role.getName())
+            || Roles.SUPER_ADMIN.equals(role.getName()));
 
-        if (!hasUserRole) {
-            throw new AccessDeniedException("User is not permitted to join a community");
+    if (!allowedToJoin) {
+        throw new AccessDeniedException("User is not permitted to join a community");
+    }
+
+        // create membership record if not exists (allow multiple memberships)
+        var existing = communityMemberRepository.findByUserIdAndCommunityId(userId, communityId);
+        if (existing.isEmpty()) {
+            communityMemberRepository.save(new com.nexora.nexorabackend.community.infrastructure.persistence.jpa.entities.CommunityMember(userId, communityId));
         }
 
-        boolean alreadyMember = user.getRoles().stream()
+        // ensure user has COMMUNITY_MEMBER role (preserve USER)
+        boolean alreadyMemberRole = user.getRoles().stream()
                 .anyMatch(role -> Roles.COMMUNITY_MEMBER.equals(role.getName()));
-
-        if (!alreadyMember) {
+        if (!alreadyMemberRole) {
             Role communityMemberRole = roleRepository.findByName(Roles.COMMUNITY_MEMBER)
                     .orElseGet(() -> roleRepository.save(new Role(Roles.COMMUNITY_MEMBER)));
-
-            user.getRoles().removeIf(role -> Roles.USER.equals(role.getName()));
             user.addRole(communityMemberRole);
             userRepository.save(user);
         }
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/mine")
+    public ResponseEntity<List<CommunityResource>> myCommunities() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+
+        var memberships = communityMemberRepository.findByUserId(userId);
+        var communities = memberships.stream()
+                .map(m -> communityRepository.findById(m.getCommunityId()))
+                .filter(java.util.Optional::isPresent)
+                .map(opt -> CommunityResourceFromEntityAssembler.toResourceFromEntity(opt.get()))
+                .toList();
+
+        return ResponseEntity.ok(communities);
     }
 
 

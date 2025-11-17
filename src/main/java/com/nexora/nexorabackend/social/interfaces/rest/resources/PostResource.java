@@ -9,5 +9,6 @@ public record PostResource (
     Integer reactions,
     Integer categoryId,
     Integer fileId,
-    Integer communityId 
+    Integer communityId,
+    String fileUrl
 ){}

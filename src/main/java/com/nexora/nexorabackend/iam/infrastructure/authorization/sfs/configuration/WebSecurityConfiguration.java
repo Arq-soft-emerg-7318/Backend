@@ -75,20 +75,23 @@ public class WebSecurityConfiguration {
         http.csrf(csrfConfigurer -> csrfConfigurer.disable())
                 .exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(unauthorizedRequestHandler))
                 .sessionManagement(customizer -> customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers(
-                                "api/v1/farm/all",
-                                "api/v1/farm/**",
+        .authorizeHttpRequests(authorizeRequests -> authorizeRequests
+            .requestMatchers(
+                "/api/v1/farm/all",
+                "/api/v1/farm/**",
 
-                                "/api/v1/authentication/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html",
-                                "/swagger-ui/index.html",
-                                "/swagger-ui/**",
-                                "/swagger-resources/**",
-                                "/webjars/**"
-                        ).permitAll()
-                        .anyRequest().authenticated());
+                "/api/v1/authentication/**",
+                "/api/v1/files/**",
+                "/api/v1/posts",
+                "/api/v1/posts/**",
+                "/v3/api-docs/**",
+                "/swagger-ui.html",
+                "/swagger-ui/index.html",
+                "/swagger-ui/**",
+                "/swagger-resources/**",
+                "/webjars/**"
+            ).permitAll()
+            .anyRequest().authenticated());
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authorizationRequestFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();

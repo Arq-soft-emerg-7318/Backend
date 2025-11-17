@@ -18,11 +18,8 @@ public class CommunityCommandServiceImpl implements CommunityCommandService {
 
     @Override
     public Optional<Community> handle(CreateCommunityCommand command) {
-        CreateCommunityCommand comand = new CreateCommunityCommand(
-                command.name(),
-                command.description(),
-                command.userId());
-        Community community = new Community(comand);
+        // Create Community directly from the incoming command (includes sector)
+        Community community = new Community(command);
         return Optional.of(communityRepository.save(community));
 
     }

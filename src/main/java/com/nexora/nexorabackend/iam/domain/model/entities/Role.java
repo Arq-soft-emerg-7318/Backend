@@ -4,16 +4,14 @@ package com.nexora.nexorabackend.iam.domain.model.entities;
 import com.nexora.nexorabackend.iam.domain.model.valueobjects.Roles;
 import jakarta.persistence.*;
 import lombok.Getter;
-import org.springframework.data.annotation.Id;
 
 import java.util.List;
 
 @Entity
 public class Role {
     @jakarta.persistence.Id
-    @Getter
-    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
     private Long id;
 
     @Getter
@@ -24,6 +22,19 @@ public class Role {
     public Role() {}
     public Role(Roles name) {
         this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Role role = (Role) o;
+        return name == role.name;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
     }
 
     public String getStringName() {

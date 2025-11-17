@@ -70,7 +70,7 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
 
         PersonName name = new PersonName(command.firstName(), command.lastName());
 
-        Profile profile = new Profile(
+    Profile profile = new Profile(
                 name,
                 command.email(),
                 command.direction(),

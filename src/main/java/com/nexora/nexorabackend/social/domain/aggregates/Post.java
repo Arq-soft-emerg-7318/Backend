@@ -5,7 +5,6 @@ import com.nexora.nexorabackend.social.domain.commands.CreatePostCommand;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.websocket.Decoder.Text;
 import lombok.Getter;
 
 @Getter
@@ -32,6 +31,7 @@ public class Post extends AuditableAbstractAggregateRoot<Post> {
     
     @Column(nullable = true)
     private Integer communityId;
+    
     public Post() {}
 
     public Post(String title, Long authorId, String body, Integer reactions, Integer categoryId, Integer fileId,
