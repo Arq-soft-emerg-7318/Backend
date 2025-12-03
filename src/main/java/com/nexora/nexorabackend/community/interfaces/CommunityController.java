@@ -73,17 +73,32 @@ public class CommunityController {
 
         var community = communityCommandService.handle(command)
                 .orElseThrow(() -> new IllegalStateException("The community could not be created"));
+        Role communityAdminRole = roleRepository.findByName(Roles.COMMUNITY_ADMIN)
+                .orElseGet(() -> roleRepository.save(new Role(Roles.COMMUNITY_ADMIN)));
 
-    Role communityAdminRole = roleRepository.findByName(Roles.COMMUNITY_ADMIN)
-        .orElseGet(() -> roleRepository.save(new Role(Roles.COMMUNITY_ADMIN)));
+        // Preserve existing USER role: only add COMMUNITY_ADMIN if not already present
+        boolean alreadyAdmin = user.getRoles().stream()
+                .anyMatch(role -> Roles.COMMUNITY_ADMIN.equals(role.getName()));
+        if (!alreadyAdmin) {
+            user.addRole(communityAdminRole);
+            userRepository.save(user);
+        }
 
-    // Preserve existing USER role: only add COMMUNITY_ADMIN if not already present
-    boolean alreadyAdmin = user.getRoles().stream()
-        .anyMatch(role -> Roles.COMMUNITY_ADMIN.equals(role.getName()));
-    if (!alreadyAdmin) {
-        user.addRole(communityAdminRole);
-        userRepository.save(user);
-    }
+        // --- NEW: automatically create membership for creator ---
+        var existingMembership = communityMemberRepository.findByUserIdAndCommunityId(userId, community.getId());
+        if (existingMembership.isEmpty()) {
+            communityMemberRepository.save(new com.nexora.nexorabackend.community.infrastructure.persistence.jpa.entities.CommunityMember(userId, community.getId()));
+        }
+
+        // Ensure the creator also has COMMUNITY_MEMBER role (preserve USER)
+        boolean alreadyMemberRole = user.getRoles().stream()
+                .anyMatch(role -> Roles.COMMUNITY_MEMBER.equals(role.getName()));
+        if (!alreadyMemberRole) {
+            Role communityMemberRole = roleRepository.findByName(Roles.COMMUNITY_MEMBER)
+                    .orElseGet(() -> roleRepository.save(new Role(Roles.COMMUNITY_MEMBER)));
+            user.addRole(communityMemberRole);
+            userRepository.save(user);
+        }
 
         var communityResource = CommunityResourceFromEntityAssembler.toResourceFromEntity(community);
         return ResponseEntity.status(HttpStatus.CREATED).body(communityResource);
