@@ -12,9 +12,9 @@ import lombok.Getter;
 public class Like  extends AuditableAbstractAggregateRoot<Like> {
 
     @Column(nullable = false)
-    private Integer userId;
+    private Long userId;
     @Column(nullable = false)
-    private Integer postId;
+    private Long postId;
 
     
     public Like(CreateLikeCommand command) {
@@ -22,4 +22,6 @@ public class Like  extends AuditableAbstractAggregateRoot<Like> {
         this.postId = command.postId();
     }
 
+    public Like() {
+    }
 }

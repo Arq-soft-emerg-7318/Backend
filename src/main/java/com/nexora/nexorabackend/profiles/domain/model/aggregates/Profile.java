@@ -4,30 +4,34 @@ import com.nexora.nexorabackend.profiles.domain.model.commands.CreateProfileComm
 import com.nexora.nexorabackend.profiles.domain.model.commands.UpdateProfileCommand;
 import com.nexora.nexorabackend.profiles.domain.model.valueobjects.PersonName;
 import com.nexora.nexorabackend.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Entity
 public class Profile extends AuditableAbstractAggregateRoot<Profile> {
     @Embedded
     private PersonName name;
+
     @Column(nullable = false)
     private String email;
+
     @Column(nullable = false)
     private String direction;
+
     @Column(nullable = false)
     private String documentNumber;
+
     @Column(nullable = false)
     private String documentType;
-    @Column(nullable = false)
+
+    @JoinColumn(nullable = false)
     private Long userId;
 
     @Column(nullable = false)
     private String phone;
-
 
     public Profile(PersonName name, String email, String direction, String documentNumber, String documentType, Long userId, String phone) {
         this.name = name;
@@ -37,7 +41,6 @@ public class Profile extends AuditableAbstractAggregateRoot<Profile> {
         this.documentType = documentType;
         this.phone = phone;
         this.userId = userId;
-
     }
 
     public Profile(CreateProfileCommand command) {
@@ -57,13 +60,6 @@ public class Profile extends AuditableAbstractAggregateRoot<Profile> {
     }
 
     public String getFullName() { return name.getFullName(); }
-   
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-    public Long getUserId() {
-        return userId;
-    }
 
     public String getFirstName() {
         return name.getFirstName();
@@ -71,8 +67,6 @@ public class Profile extends AuditableAbstractAggregateRoot<Profile> {
     public  String getLastName() {
         return name.getLastName();
     }
-   
-
 
     public void update(UpdateProfileCommand command) {
         this.name = new PersonName(command.firstName(), command.lastName());
@@ -82,8 +76,4 @@ public class Profile extends AuditableAbstractAggregateRoot<Profile> {
         this.phone = command.phone();
         this.direction = command.direction();
     }
-    public void setName(PersonName name) {
-        this.name = name;
-    }
-
 }
