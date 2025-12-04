@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.nexora.nexorabackend.iam.infrastructure.authorization.sfs.model.UserDetailsImpl;
@@ -47,11 +46,19 @@ public class PostController {
     public ResponseEntity<PostResource> createPost(@RequestPart("post") CreatePostResource resource,
                                                   @RequestPart(value = "file", required = false) MultipartFile file) throws AccessDeniedException {
 
-        //Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        //UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        //Long userId = userDetails.getId();
+    Long userId;
 
-        Long userId = resource.authorId();
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+    if (authentication != null && authentication.isAuthenticated()
+            && authentication.getPrincipal() instanceof UserDetailsImpl userDetails) {
+
+        userId = userDetails.getId();
+
+    } else {
+        userId = resource.authorId();
+    }
+
 
         Integer fileId = resource.fileId();
         if (file != null && !file.isEmpty()) {
