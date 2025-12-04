@@ -26,7 +26,7 @@ public class Post extends AuditableAbstractAggregateRoot<Post> {
     @Column(nullable = false)
     private Integer categoryId;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer fileId;
     
     @Column(nullable = true)

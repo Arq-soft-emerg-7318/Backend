@@ -79,7 +79,7 @@ public class WebSecurityConfiguration {
             .requestMatchers(
                 "/api/v1/farm/all",
                 "/api/v1/farm/**",
-
+                "/api/v1/users",
                 "/api/v1/authentication/**",
                 "/api/v1/files/**",
                 "/api/v1/posts",

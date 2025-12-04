@@ -47,9 +47,11 @@ public class PostController {
     public ResponseEntity<PostResource> createPost(@RequestPart("post") CreatePostResource resource,
                                                   @RequestPart(value = "file", required = false) MultipartFile file) throws AccessDeniedException {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        Long userId = userDetails.getId();
+        //Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        //UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        //Long userId = userDetails.getId();
+
+        Long userId = resource.authorId();
 
         Integer fileId = resource.fileId();
         if (file != null && !file.isEmpty()) {
@@ -61,6 +63,9 @@ public class PostController {
             }
         }
 
+        if (fileId == null) {
+            fileId = 0;
+        }
         CreatePostCommand command = new CreatePostCommand(
             resource.title(),
             userId,
